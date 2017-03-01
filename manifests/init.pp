@@ -243,8 +243,8 @@ class cassandra (
     }
   }
 
-  $topology_properties_file_require = $dc_rack_properties_file_require
-  $topology_properties_file_before  = $dc_rack_properties_file_before
+  $topology_properties_file_require = Package['cassandra']
+  $topology_properties_file_before  = Service['cassandra']
 
   package { 'cassandra':
     ensure => $package_ensure,
