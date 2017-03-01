@@ -165,6 +165,7 @@ class cassandra (
 
   $config_file = "${config_path}/cassandra.yaml"
   $dc_rack_properties_file = "${config_path}/${snitch_properties_file}"
+  $topology_properties_file = "${config_path}/cassandra-topology.properties"
 
   case $::osfamily {
     'RedHat': {
@@ -241,6 +242,9 @@ class cassandra (
       }
     }
   }
+
+  $topology_properties_file_require = $dc_rack_properties_file_require
+  $topology_properties_file_before  = $dc_rack_properties_file_before
 
   package { 'cassandra':
     ensure => $package_ensure,
@@ -354,6 +358,12 @@ class cassandra (
     before  => $dc_rack_properties_file_before,
   }
 
+  file { $topology_properties_file:
+    ensure  => absent,
+    require => $topology_properties_file_require,
+    before  => $topology_properties_file_before,
+  }
+
   if $package_ensure != 'absent' and $package_ensure != 'purged' {
     if $service_refresh {
       service { 'cassandra':
@@ -363,6 +373,7 @@ class cassandra (
         subscribe => [
           File[$config_file],
           File[$dc_rack_properties_file],
+          File[$topology_properties_file],
           Package['cassandra'],
         ],
       }
@@ -374,6 +385,7 @@ class cassandra (
         require => [
           File[$config_file],
           File[$dc_rack_properties_file],
+          File[$topology_properties_file],
           Package['cassandra'],
         ],
       }
